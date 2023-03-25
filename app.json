@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/setting/setting"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#42c642",
+    "navigationBarBackgroundColor": "#42c642",
+    "navigationBarTitleText": "我的天气程序",
+    "navigationBarTextStyle": "white"
+  },
+  "plugins": {
+    "citySelector": {
+      "version": "1.0.2",
+      "provider": "wx63ffb7b7894e99ae"
+    }
+  },
+  "permission": {
+    "scope. userFuzzyLocation": {
+      "desc": "你的位置信息将用于小程序定位"
+    }
+  }
+}

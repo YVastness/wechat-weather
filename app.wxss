@@ -1,0 +1,5 @@
+/**app.wxss**/
+.container {
+  height: 1205rpx;
+  background: #faf9fa;
+} 
