@@ -11,6 +11,7 @@
     "navigationBarTitleText": "我的天气程序",
     "navigationBarTextStyle": "white"
   },
+  "lazyCodeLoading": "requiredComponents",
   "plugins": {
     "citySelector": {
       "version": "1.0.2",

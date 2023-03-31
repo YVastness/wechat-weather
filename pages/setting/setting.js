@@ -1,5 +1,6 @@
 // setting.js
 var api = require('../../libs/api')
+var util = require('../../libs/util');
 
 //获取应用实例
 var app = getApp()
@@ -10,6 +11,7 @@ Page({
    */
   data: {
     userInfo: {},
+    cityInfo: { openid: '', cityCode: 0 },
     citySelected: {},
     weatherData: {},
     multiConf: [],
@@ -38,7 +40,7 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function () {
     this.setData({
       userInfo: app.globalData.userInfo,
       weatherData: wx.getStorageSync('weatherData'),
@@ -54,7 +56,6 @@ Page({
     console.log(cityCode)
     try {
       var citySelected = wx.getStorageSync('citySelected') || []
-
       if (this.data.weatherData['__location__'].realtime.city_code == cityCode) {
         return
       }
@@ -65,15 +66,20 @@ Page({
       var that = this;
       api.loadWeatherData(cityCode, function (cityCode, data) {
         var weatherData = wx.getStorageSync('weatherData') || {};
+        var token = wx.getStorageSync('token') || {};
         weatherData[cityCode] = data;
         wx.setStorageSync('weatherData', weatherData);
         citySelected.push(cityCode);
+        console.log("-----------" + citySelected);
         wx.setStorageSync('citySelected', citySelected);
         that.setData({
           chinaCitySelected: cityCode,
           citySelected: citySelected,
-          weatherData: weatherData
+          weatherData: weatherData,
+          'cityInfo.token': token,
+          'cityInfo.cityCode': cityCode
         })
+        util.setCityInfo(that.data.cityInfo);
       });
     } catch (e) { console.log(e) }
   },

@@ -6,6 +6,7 @@ function loadWeatherData(cityCode, cb) {
   var apiWeatherUrl = apiLocalWeatherUrl;
   if (cityCode != "" && cityCode != "__location__") {
     apiWeatherUrl = apiCityWeatherUrl + cityCode;
+    console.log(apiWeatherUrl);
   }
   wx.request({
     url: apiWeatherUrl,
