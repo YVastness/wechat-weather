@@ -11,7 +11,7 @@ Page({
    */
   data: {
     userInfo: {},
-    cityInfo: { openid: '', cityCode: 0 },
+    cityInfo: { openid: '', cityCode: '' },
     citySelected: {},
     weatherData: {},
     multiConf: [],
@@ -46,6 +46,7 @@ Page({
       weatherData: wx.getStorageSync('weatherData'),
       citySelected: wx.getStorageSync('citySelected'),
     })
+    console.log("-=-=-=-=-=-"+ this.data.citySelected)
   },
 
   onShow: function () {
@@ -56,6 +57,7 @@ Page({
     console.log(cityCode)
     try {
       var citySelected = wx.getStorageSync('citySelected') || []
+      console.log(citySelected)
       if (this.data.weatherData['__location__'].realtime.city_code == cityCode) {
         return
       }
@@ -66,7 +68,7 @@ Page({
       var that = this;
       api.loadWeatherData(cityCode, function (cityCode, data) {
         var weatherData = wx.getStorageSync('weatherData') || {};
-        var token = wx.getStorageSync('token') || {};
+        var openId = wx.getStorageSync('openId') || {};
         weatherData[cityCode] = data;
         wx.setStorageSync('weatherData', weatherData);
         citySelected.push(cityCode);
@@ -76,7 +78,7 @@ Page({
           chinaCitySelected: cityCode,
           citySelected: citySelected,
           weatherData: weatherData,
-          'cityInfo.token': token,
+          'cityInfo.openId': openId,
           'cityInfo.cityCode': cityCode
         })
         util.setCityInfo(that.data.cityInfo);

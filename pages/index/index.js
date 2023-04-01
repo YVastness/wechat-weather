@@ -28,9 +28,9 @@ Page({
         })
     },
     updateTopCity: function (event) {
-        var citySelected = wx.getStorageSync('citySelected');
-        var weatherData = wx.getStorageSync('weatherData');
-        var topCity = {
+        let citySelected = wx.getStorageSync('citySelected');
+        let weatherData = wx.getStorageSync('weatherData');
+        let topCity = {
             left: "",
             center: "",
             right: "",
@@ -58,38 +58,52 @@ Page({
 
     onLoad: function () {
         wx.setStorageSync('isSettings', false);
-        var defaultCityCode = "__location__";
-        var citySelected = wx.getStorageSync('citySelected');
-        var weatherDatas = wx.getStorageSync('weatherData');
-        var that = this;
-        if (citySelected.length === 0 || weatherDatas.length === 0) {
-            // api.loadWeatherData(defaultCityCode, function (cityCode, data) {
-            //   var weatherData = {}
-            //   weatherData[cityCode] = data;
-            //   that.setHomeData([cityCode], weatherData);
-            // });
-            app.userLogin().then(res => {
-                citySelected = wx.getStorageSync('citySelected') || [];
-                for (let i = 0; i < citySelected.length; i++) {
-                    const cityCode = citySelected[i];
-                    api.loadWeatherData(cityCode, function (cityCode, data) {
-                        that.weatherData[cityCode] = data;
-                        wx.setStorageSync('weatherData', that.weatherData);
-                        console.log(that.weatherData[cityCode])
-                    });
-                }
-                that.setHomeData(citySelected, that.weatherData);
-            })
+        let defaultCityCode = "__location__";
+        let citySelected = wx.getStorageSync('citySelected') || [];
+        let weatherData = wx.getStorageSync('weatherData') || {};
+        let that = this;
+        if (citySelected.length === 0 || weatherData.length === 0) {
+            api.loadWeatherData(defaultCityCode, function (cityCode, data) {
+                let weatherData = {};
+                weatherData[cityCode] = data;
+                that.setHomeData([cityCode], weatherData);
+            });
         } else {
-            this.setHomeData(citySelected, weatherDatas);
+            this.setHomeData(citySelected, weatherData);
         }
     },
 
+    // onLoad: function () {
+    //     wx.setStorageSync('isSettings', false);
+    //     let defaultCityCode = "__location__";
+    //     let citySelected = wx.getStorageSync('citySelected') || [];
+    //     let weatherData = wx.getStorageSync('weatherData') || {};
+    //     let that = this;
+    //     if (citySelected.length === 0 || weatherData.length === 0) {
+    //         app.userLogin().then(res => {
+    //             that.loadWeatherData(res);
+    //         })
+    //     } else {
+    //         this.setHomeData(citySelected, weatherData);
+    //     }
+    // },
+
+    // loadWeatherData: function (res) {
+    //     for (let idx in res) {
+    //         let cityCode = res[idx];
+    //         api.loadWeatherData(cityCode, function (cityCode, data) {
+    //             app.globalData.weatherData[cityCode] = data;
+    //             wx.setStorageSync('weatherData', app.globalData.weatherData);
+    //         });
+    //     }
+    //     this.setHomeData(res, app.globalData.weatherData);
+    // },
     onShow: function () {
         let isSettings = wx.getStorageSync("isSettings");
         if (isSettings) {
             let citySelected = wx.getStorageSync('citySelected');
             let weatherData = wx.getStorageSync('weatherData');
+            console.log(citySelected,weatherData)
             let topCity = {
                 left: "",
                 center: "",
@@ -130,7 +144,7 @@ Page({
     },
 
     setHomeData: function (citySelected, weatherData) {
-        console.log(citySelected + weatherData + "=========");
+        // console.log(citySelected + weatherData[0] + "=========");
         let topCity = {
             left: "",
             center: "",
