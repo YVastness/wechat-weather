@@ -96,6 +96,7 @@ Page({
       for (var k in citySelected) {
         if (citySelected[k] == cityCode) {
           citySelected.splice(k, 1)
+          util.deleteCityInfo(cityCode)
           break;
         }
       }

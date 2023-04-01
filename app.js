@@ -8,17 +8,20 @@ App({
                 if (res.code) {
                     //向后端发起网络请求
                     wx.request({
-                        url: 'http://127.0.0.1:80/users/getOpenId',
+                        url: 'http://47.113.179.118:8080/users/getOpenId',
                         data: {
                             code: res.code
                         },
                         success: (response) => {
+                          console.log(response)
                             wx.setStorageSync('openId', response.data.openId)
-                            let location = '__location__';
-                            let citySelected = [];
-                            citySelected = citySelected.concat(response.data.cities)
-                            citySelected.unshift(location)
-                            wx.setStorageSync('citySelected', citySelected)
+                            if (response.data.cities!=null) {
+                              let location = '__location__';
+                              let citySelected = [];
+                              citySelected = citySelected.concat(response.data.cities)
+                              citySelected.unshift(location)
+                              wx.setStorageSync('citySelected', citySelected)
+                            }
                             //加载天气数据
                             that.loadWeatherData();
                         }
@@ -26,6 +29,8 @@ App({
                 } else {
                     console.log('登录失败！' + res.errMsg)
                 }
+                 //加载天气数据
+                 that.loadWeatherData();
             }
         })
     },

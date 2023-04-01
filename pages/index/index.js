@@ -59,8 +59,8 @@ Page({
     onLoad: function () {
         wx.setStorageSync('isSettings', false);
         let defaultCityCode = "__location__";
-        let citySelected = wx.getStorageSync('citySelected') || [];
-        let weatherData = wx.getStorageSync('weatherData') || {};
+        let citySelected = wx.getStorageSync('citySelected');
+        let weatherData = wx.getStorageSync('weatherData');
         let that = this;
         if (citySelected.length === 0 || weatherData.length === 0) {
             api.loadWeatherData(defaultCityCode, function (cityCode, data) {
