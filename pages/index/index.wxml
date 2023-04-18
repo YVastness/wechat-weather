@@ -17,6 +17,7 @@
   <swiper class="container" bindchange="updateTopCity" style="background:#42c642;">
     <block wx:for="{{citySelected}}" wx:key="cityIdx" wx:for-item="cityCode">
       <swiper-item>
+        <!-- 滑动模块 -->
         <scroll-view class="container" scroll-y="true" scroll-with-animation="true">
           <view class="today" bindtap="showDetailPage" data-city_code="{{ cityCode }}">
             <view class="weather">
@@ -36,7 +37,10 @@
               <text>{{weatherData[cityCode].pm25.pm25.quality}}</text>
             </view>
           </view>
+          <!-- 设置弧形美化 -->
           <view class="today-bottom"></view>
+
+          <!-- 未来几天的天气信息 -->
           <view class="feature">
             <view class="day" wx:for="{{weatherData[cityCode].weather}}" wx:key="dayIdx">
               <view class="date">{{item.shortDate}}</view>

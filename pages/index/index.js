@@ -8,19 +8,29 @@ Page({
         topCity: {},
     },
 
-    //事件处理函数
-    showDetailPage: function (e) {
-        let cityCode = e.currentTarget.dataset.city_code || '';
+    /**
+     * 显示天气管理页面
+     */
+    showDetailPage: function (event) {
+        // 从属性data-city_code获取数据
+        let cityCode = event.currentTarget.dataset.city_code || '';
 
         wx.navigateTo({
             url: '../detail/detail?city_code=' + cityCode
         })
     },
+    /**
+     * 显示城市管理页面
+     */
     showSettingPage: function () {
         wx.navigateTo({
             url: '../setting/setting'
         })
     },
+    /**
+     * 更新首页顶部的显示的城市信息
+     * @param event 事件发生后返回的数据
+     */
     updateTopCity: function (event) {
         let citySelected = wx.getStorageSync('citySelected');
         let weatherData = wx.getStorageSync('weatherData');
@@ -35,14 +45,17 @@ Page({
         try {
             topCity.left = weatherData[citySelected[current - 1]].realtime.city_name;
         } catch (e) {
+            console.log(e.message)
         }
         try {
             topCity.center = weatherData[citySelected[current]].realtime.city_name;
         } catch (e) {
+            console.log(e.message)
         }
         try {
             topCity.right = weatherData[citySelected[current + 1]].realtime.city_name;
         } catch (e) {
+            console.log(e.message)
         }
 
         this.setData({
@@ -50,6 +63,10 @@ Page({
         })
     },
 
+
+    /**
+     * 生命周期函数--监听页面加载
+     */
     onLoad: function () {
         wx.setStorageSync('isSettings', false)
         let defaultCityCode = "__location__";
@@ -67,6 +84,9 @@ Page({
         }
     },
 
+    /**
+     * 生命周期函数--监听页面显示
+     */
     onShow: function () {
         let isSettings = wx.getStorageSync("isSettings");
         if (isSettings) {
@@ -110,6 +130,11 @@ Page({
         }
     },
 
+    /**
+     * 设置主页数据
+     * @param citySelected 已经被管理的城市信息
+     * @param weatherData 天气信息
+     */
     setHomeData: function (citySelected, weatherData) {
         let topCity = {
             left: "",

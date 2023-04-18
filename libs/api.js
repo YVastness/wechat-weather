@@ -1,8 +1,22 @@
 const apiLocalWeatherUrl = 'https://open.onebox.so.com/Dataapi?&query=%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=weather';
 const apiCityWeatherUrl = 'https://open.onebox.so.com/Dataapi?callback=&query=%E5%8C%97%E4%BA%AC%E5%B8%82%E5%8C%97%E4%BA%AC%E6%B5%B7%E6%B7%80%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=http%253A%252F%252Fcdn.weather.hao.360.cn%252Fsed_api_weather_info.php%253Fapp%253DguideEngine%2526fmt%253Djson%2526code%253D';
+const cdnWeatherHaoUrl = 'http://cdn.weather.hao.360.cn/sed_api_area_query.php?app=guideEngine&fmt=json&grade=';
+const qweather = 'https://geoapi.qweather.com/v2/city/lookup?key=8cbf558f85dd40ff86f528b2370236b8&location=';
+let cityConfCache = {};
+let lifeNameConf = {
+    chuanyi: "穿衣",
+    ganmao: "感冒",
+    xiche: "行车",
+    yundong: "运动",
+    ziwaixian: "紫外线",
+    diaoyu: "钓鱼",
+    daisan: "带伞",
+    guomin: "过敏",
+};
 
 /**
  * 加载获取天气数据
+ *
  * @param cityCode 城市代码
  * @param callback 回调函数
  */
@@ -14,7 +28,7 @@ function loadWeatherData(cityCode, callback) {
     wx.request({
         url: apiWeatherUrl,
         data: {},
-        success: function (res) {
+        success: res => {
             if (res.statusCode !== 200 || res.data.length === 0) {
                 return;
             }
@@ -24,6 +38,12 @@ function loadWeatherData(cityCode, callback) {
     })
 }
 
+/**
+ *从api中获取数据并解析为展示的数据
+ *
+ * @param data 从api中获取数据
+ * @returns {*} 解析的展示的数据
+ */
 function parseWeatherData(data) {
     data.realtime.weather.pic = weatherPic(data.realtime.weather.img);
     for (let i = 0; i < data.weather.length; i++) {
@@ -42,49 +62,62 @@ function parseWeatherData(data) {
             });
         }
     }
+    /*
+        获取生活指数conf.key，name，pic
+        key: 来获取life.info里生活指数信息
+     */
     data.life['conf'] = lifeConf;
     return data;
 }
 
-function weatherPic(no) {
-    if (no.length === 1) {
-        no = '0' + no;
+/**
+ * 获取照片地址
+ *
+ * @param pictureNo 照片的代码
+ * @returns {string} 照片的api地址
+ */
+function weatherPic(pictureNo) {
+    // api里照片名都是两位数，所以需要转换照片名
+    if (pictureNo.length === 1) {
+        pictureNo = '0' + pictureNo;
     }
-    return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + no + '.png'
+    return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + pictureNo + '.png'
 }
 
+/**
+ * 获取生活指数照片
+ *
+ * @param key 特定的生活指数的key（例如：带伞），用来获取值（是否带伞，照片等）
+ * @returns {string} 生活指数照片地址
+ */
 function lifePic(key) {
     return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + key + '.png';
 }
 
-var lifeNameConf = {
-    chuanyi: "穿衣",
-    ganmao: "感冒",
-    xiche: "行车",
-    yundong: "运动",
-    ziwaixian: "紫外线",
-    diaoyu: "钓鱼",
-    daisan: "带伞",
-    guomin: "过敏",
-}
-
+/**
+ * 根据生活指数key自定义的生活指数名
+ * @param key 生活指数key
+ * @returns {*} 自定义的生活指数名
+ */
 function lifeName(key) {
     return lifeNameConf[key];
 }
 
-function shortDate(str) {
-    let date = new Date(Date.parse(str));
+/**
+ * 转换日期格式
+ *
+ * @param oldDate 需要被转换的日期
+ * @returns {string} 新日期
+ */
+function shortDate(oldDate) {
+    let date = new Date(Date.parse(oldDate));
     let now = new Date();
-    let result = (date.getMonth() + 1) + "/" + date.getDate();
+    let newDate = (date.getMonth() + 1) + "/" + date.getDate();
     if (now.getDate() === date.getDate()) {
-        result = "今天";
+        newDate = "今天";
     }
-    return result;
+    return newDate;
 }
-
-const cdnWeatherHaoUrl = 'http://cdn.weather.hao.360.cn/sed_api_area_query.php?app=guideEngine&fmt=json&grade=';
-const qweather = 'https://geoapi.qweather.com/v2/city/lookup?key=8cbf558f85dd40ff86f528b2370236b8&location=';
-let cityConfCache = {};
 
 function loadCityConf(level, code, cb) {
     let cacheKey = level + ":" + code;
