@@ -9,7 +9,6 @@ Page({
    * 页面的初始数据
    */
   data: {
-    userInfo: {},
     citySelected: {},
     weatherData: {},
     multiConf: [],
@@ -40,7 +39,6 @@ Page({
    */
   onLoad: function (options) {
     this.setData({
-      userInfo: app.globalData.userInfo,
       weatherData: wx.getStorageSync('weatherData'),
       citySelected: wx.getStorageSync('citySelected'),
     })
@@ -58,7 +56,9 @@ Page({
       if (this.data.weatherData['__location__'].realtime.city_code == cityCode) {
         return
       }
-      if (citySelected.find(function (item) { return item === cityCode; }) != undefined) {
+      if (citySelected.find(function (item) {
+        return item === cityCode;
+      }) != undefined) {
         return
       }
 
@@ -75,17 +75,19 @@ Page({
           weatherData: weatherData
         })
       });
-    } catch (e) { console.log(e) }
+    } catch (e) {
+      console.log(e)
+    }
   },
 
   removeCity: function (e) {
     try {
-      var cityCode = e.currentTarget.dataset.city_code || '';
+      let cityCode = e.currentTarget.dataset.city_code || '';
       if (cityCode == "") {
         return
       }
-      var citySelected = wx.getStorageSync('citySelected')
-      for (var k in citySelected) {
+      let citySelected = wx.getStorageSync('citySelected');
+      for (let k in citySelected) {
         if (citySelected[k] == cityCode) {
           citySelected.splice(k, 1)
           break;
@@ -95,7 +97,8 @@ Page({
       this.setData({
         citySelected: citySelected,
       })
-    } catch (e) { }
+    } catch (e) {
+    }
   },
   /**
    * 用户点击右上角分享

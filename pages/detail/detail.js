@@ -35,10 +35,12 @@ Page({
       center: "",
       right: "",
     }
-    try { topCity.center = weatherInfo.realtime.city_name; } catch (e) { }
+    try {
+      topCity.center = weatherInfo.realtime.city_name;
+    } catch (e) {
+    }
 
     this.setData({
-      userInfo: app.globalData.userInfo,
       weatherInfo: weatherInfo,
       topCity: topCity,
     })
@@ -48,6 +50,6 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
-  
+
   }
 })
