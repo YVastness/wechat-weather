@@ -1,6 +1,4 @@
 // detail.js
-//获取应用实例
-var app = getApp()
 Page({
 
   /**
@@ -20,34 +18,29 @@ Page({
   },
 
   loadWeatherData: function (options) {
-    var cityCode = options.city_code || '';
-    if (cityCode == "") {
+    let cityCode = options.city_code || '';
+    if (cityCode === "") {
       wx.navigateBack();
     }
-    var weatherData = wx.getStorageSync('weatherData');
-    var weatherInfo = weatherData[cityCode];
-    if (weatherInfo == undefined) {
+    let weatherData = wx.getStorageSync('weatherData');
+    let weatherInfo = weatherData[cityCode];
+    if (weatherInfo === undefined) {
       wx.navigateBack();
     }
 
-    var topCity = {
+    let topCity = {
       left: "",
       center: "",
       right: "",
+    };
+    try {
+      topCity.center = weatherInfo.realtime.city_name;
+    } catch (e) {
     }
-    try { topCity.center = weatherInfo.realtime.city_name; } catch (e) { }
 
     this.setData({
-      userInfo: app.globalData.userInfo,
       weatherInfo: weatherInfo,
       topCity: topCity,
     })
   },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-  
-  }
 })

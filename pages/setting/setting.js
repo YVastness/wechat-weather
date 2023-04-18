@@ -1,17 +1,12 @@
 // setting.js
-var api = require('../../libs/api')
-var util = require('../../libs/util');
+const api = require('../../libs/api');
 
-//获取应用实例
-var app = getApp()
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    userInfo: {},
-    cityInfo: { openid: '', cityCode: '' },
     citySelected: {},
     weatherData: {},
     multiConf: [],
@@ -20,18 +15,24 @@ Page({
     chinaCitySelected: [0, 0, 0],
     selectorVisible: false,
   },
-  // 显示组件
+  /**
+   * 显示城市选择器组件
+   */
   showSelector() {
     this.setData({
       selectorVisible: true,
     });
   },
 
-  // 当用户选择了组件中的城市之后的回调函数
-  onSelectCity(e) {
-    var that = this;
-    console.log(e.detail.city.id)
-    api.selectCity(e.detail.city.id, function (cityCode) {
+  /**
+   * 当用户选择了组件中的城市之后的回调函数
+   *
+   * @param event 事件发生后返回的数据
+   */
+  onSelectCity(event) {
+    let that = this;
+    console.log(event.detail.city.id)
+    api.selectCity(event.detail.city.id, function (cityCode) {
       that.addCity(cityCode);
     });
 
@@ -42,74 +43,71 @@ Page({
    */
   onLoad: function () {
     this.setData({
-      userInfo: app.globalData.userInfo,
       weatherData: wx.getStorageSync('weatherData'),
       citySelected: wx.getStorageSync('citySelected'),
     })
-    console.log("-=-=-=-=-=-" + this.data.citySelected)
   },
 
   onShow: function () {
     wx.setStorageSync('isSettings', true)
   },
 
+  /**
+   * 添加城市
+   * @param cityCode 城市代码
+   */
   addCity: function (cityCode) {
-    console.log(cityCode)
     try {
-      var citySelected = wx.getStorageSync('citySelected') || []
-      console.log(citySelected)
-      if (this.data.weatherData['__location__'].realtime.city_code == cityCode) {
+      let citySelected = wx.getStorageSync('citySelected') || [];
+
+      if (this.data.weatherData['__location__'].realtime.city_code === cityCode) {
         return
       }
-      if (citySelected.find(function (item) { return item === cityCode; }) != undefined) {
+      if (citySelected.find(item => item === cityCode) !== undefined) {
         return
       }
 
-      var that = this;
+      let that = this;
       api.loadWeatherData(cityCode, function (cityCode, data) {
-        var weatherData = wx.getStorageSync('weatherData') || {};
-        var openId = wx.getStorageSync('openId') || {};
+        let weatherData = wx.getStorageSync('weatherData') || {};
         weatherData[cityCode] = data;
         wx.setStorageSync('weatherData', weatherData);
         citySelected.push(cityCode);
-        console.log("-----------" + citySelected);
         wx.setStorageSync('citySelected', citySelected);
         that.setData({
           chinaCitySelected: cityCode,
           citySelected: citySelected,
-          weatherData: weatherData,
-          'cityInfo.openId': openId,
-          'cityInfo.cityCode': cityCode
+          weatherData: weatherData
         })
-        util.setCityInfo(that.data.cityInfo);
       });
-    } catch (e) { console.log(e) }
+    } catch (e) {
+      console.log(e)
+    }
   },
 
-  removeCity: function (e) {
+  /**
+   * 删除城市
+   * @param event 点击删除按钮后传的值
+   */
+  removeCity: function (event) {
     try {
-      var cityCode = e.currentTarget.dataset.city_code || '';
-      if (cityCode == "") {
+      let cityCode = event.currentTarget.dataset.city_code || '';
+      if (cityCode === "") {
         return
       }
-      var citySelected = wx.getStorageSync('citySelected')
-      for (var k in citySelected) {
-        if (citySelected[k] == cityCode) {
-          citySelected.splice(k, 1)
-          util.deleteCityInfo(cityCode)
+      let citySelected = wx.getStorageSync('citySelected');
+      for (let key in citySelected) {
+        if (citySelected[key] === cityCode) {
+          citySelected.splice(key, 1);
           break;
         }
       }
       wx.setStorageSync('citySelected', citySelected);
       this.setData({
         citySelected: citySelected,
-      })
-    } catch (e) { }
+      });
+    } catch (e) {
+      console.log(e.message);
+    }
   },
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  }
 })
