@@ -31,7 +31,6 @@ Page({
    */
   onSelectCity(event) {
     let that = this;
-    console.log(event.detail.city.id)
     api.selectCity(event.detail.city.id, function (cityCode) {
       that.addCity(cityCode);
     });

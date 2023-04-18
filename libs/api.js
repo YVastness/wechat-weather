@@ -4,14 +4,14 @@ const cdnWeatherHaoUrl = 'http://cdn.weather.hao.360.cn/sed_api_area_query.php?a
 const qweather = 'https://geoapi.qweather.com/v2/city/lookup?key=8cbf558f85dd40ff86f528b2370236b8&location=';
 let cityConfCache = {};
 let lifeNameConf = {
-  chuanyi: "穿衣",
-  ganmao: "感冒",
-  xiche: "行车",
-  yundong: "运动",
-  ziwaixian: "紫外线",
-  diaoyu: "钓鱼",
-  daisan: "带伞",
-  guomin: "过敏",
+    chuanyi: "穿衣",
+    ganmao: "感冒",
+    xiche: "行车",
+    yundong: "运动",
+    ziwaixian: "紫外线",
+    diaoyu: "钓鱼",
+    daisan: "带伞",
+    guomin: "过敏",
 };
 
 /**
@@ -21,20 +21,20 @@ let lifeNameConf = {
  * @param callback 回调函数
  */
 function loadWeatherData(cityCode, callback) {
-  let apiWeatherUrl = apiLocalWeatherUrl;
-  if (cityCode !== "" && cityCode !== "__location__") {
-    apiWeatherUrl = apiCityWeatherUrl + cityCode;
-  }
-  wx.request({
-    url: apiWeatherUrl,
-    data: {},
-    success: res => {
-      if (res.statusCode !== 200 || res.data.length === 0) {
-        return;
-      }
-      let weatherData = parseWeatherData(res.data);
-      typeof callback == "function" && callback(cityCode, weatherData)
+    let apiWeatherUrl = apiLocalWeatherUrl;
+    if (cityCode !== "" && cityCode !== "__location__") {
+        apiWeatherUrl = apiCityWeatherUrl + cityCode;
     }
+    wx.request({
+        url: apiWeatherUrl,
+        data: {},
+        success: res => {
+            if (res.statusCode !== 200 || res.data.length === 0) {
+                return;
+            }
+            let weatherData = parseWeatherData(res.data);
+            typeof callback == "function" && callback(cityCode, weatherData)
+        }
     })
 }
 
@@ -45,29 +45,29 @@ function loadWeatherData(cityCode, callback) {
  * @returns {*} 解析的展示的数据
  */
 function parseWeatherData(data) {
-  data.realtime.weather.pic = weatherPic(data.realtime.weather.img);
-  for (let i = 0; i < data.weather.length; i++) {
-    data.weather[i].shortDate = shortDate(data.weather[i].date);
-    data.weather[i].day_pic = weatherPic(data.weather[i].info.day[0]);
-    data.weather[i].night_pic = weatherPic(data.weather[i].info.night[0]);
-  }
-  let lifeConf = [];
-  for (let key in data.life.info) {
-    let name = lifeName(key);
-    if (name !== undefined) {
-      lifeConf.push({
-        key: key,
-        name: name,
-        pic: lifePic(key)
-      });
+    data.realtime.weather.pic = weatherPic(data.realtime.weather.img);
+    for (let i = 0; i < data.weather.length; i++) {
+        data.weather[i].shortDate = shortDate(data.weather[i].date);
+        data.weather[i].day_pic = weatherPic(data.weather[i].info.day[0]);
+        data.weather[i].night_pic = weatherPic(data.weather[i].info.night[0]);
     }
-  }
-  /*
-      获取生活指数conf.key，name，pic
-      key: 来获取life.info里生活指数信息
-   */
-  data.life['conf'] = lifeConf;
-  return data;
+    let lifeConf = [];
+    for (let key in data.life.info) {
+        let name = lifeName(key);
+        if (name !== undefined) {
+            lifeConf.push({
+                key: key,
+                name: name,
+                pic: lifePic(key)
+            });
+        }
+    }
+    /*
+        获取生活指数conf.key，name，pic
+        key: 来获取life.info里生活指数信息
+     */
+    data.life['conf'] = lifeConf;
+    return data;
 }
 
 /**
@@ -77,11 +77,14 @@ function parseWeatherData(data) {
  * @returns {string} 照片的api地址
  */
 function weatherPic(pictureNo) {
-  // api里照片名都是两位数，所以需要转换照片名
-  if (pictureNo.length === 1) {
-    pictureNo = '0' + pictureNo;
-  }
-  return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + pictureNo + '.png'
+    if (pictureNo === '7' || pictureNo === '9' || pictureNo === '21') {
+        pictureNo = '08';
+    }
+    // api里照片名都是两位数，所以需要转换照片名
+    if (pictureNo.length === 1) {
+        pictureNo = '0' + pictureNo;
+    }
+    return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + pictureNo + '.png'
 }
 
 /**
@@ -91,7 +94,7 @@ function weatherPic(pictureNo) {
  * @returns {string} 生活指数照片地址
  */
 function lifePic(key) {
-  return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + key + '.png';
+    return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + key + '.png';
 }
 
 /**
@@ -110,17 +113,17 @@ function lifeName(key) {
  * @returns {string} 新日期
  */
 function shortDate(oldDate) {
-  let date = new Date(Date.parse(oldDate));
-  let now = new Date();
-  let newDate = (date.getMonth() + 1) + "/" + date.getDate();
-  if (now.getDate() === date.getDate()) {
-    newDate = "今天";
-  }
-  return newDate;
+    let date = new Date(Date.parse(oldDate));
+    let now = new Date();
+    let newDate = (date.getMonth() + 1) + "/" + date.getDate();
+    if (now.getDate() === date.getDate()) {
+        newDate = "今天";
+    }
+    return newDate;
 }
 
 function loadCityConf(level, code, cb) {
-  let cacheKey = level + ":" + code;
+    let cacheKey = level + ":" + code;
     if (cityConfCache[cacheKey] !== undefined && cityConfCache[cacheKey].length > 0) {
         typeof cb == "function" && cb(level, code, cityConfCache[cacheKey])
         return
