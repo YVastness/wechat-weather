@@ -46,7 +46,7 @@ Page({
       weatherData: wx.getStorageSync('weatherData'),
       citySelected: wx.getStorageSync('citySelected'),
     })
-    console.log("-=-=-=-=-=-"+ this.data.citySelected)
+    console.log("-=-=-=-=-=-" + this.data.citySelected)
   },
 
   onShow: function () {
