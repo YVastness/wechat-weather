@@ -77,7 +77,7 @@ function parseWeatherData(data) {
  * @returns {string} 照片的api地址
  */
 function weatherPic(pictureNo) {
-    if (pictureNo === '7' || pictureNo === '9' || pictureNo === '21') {
+    if (pictureNo === '7' ||pictureNo === '09'|| pictureNo === '9' || pictureNo === '21') {
         pictureNo = '08';
     }
     // api里照片名都是两位数，所以需要转换照片名

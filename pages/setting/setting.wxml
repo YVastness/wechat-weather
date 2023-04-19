@@ -23,7 +23,7 @@
                 + 添加城市
             </button>
             <selector-component show="{{selectorVisible}}" key="O3QBZ-LPRAV-5GWPE-5MWZG-WZSQ5-YSBLS" referer="天气帮手"
-                                hotCitys="" bindselect="onSelectCity"></selector-component>
+                                hotCitys="北京,上海,天津,重庆,广州,深圳,成都,杭州" bindselect="onSelectCity"></selector-component>
         </view>
     </scroll-view>
 </view>
