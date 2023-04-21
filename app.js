@@ -3,7 +3,7 @@ const api = require('./libs/api');
 App({
   onLaunch: function () {
     //加载天气数据
-    this.loadWeatherData();
+    // this.loadWeatherData();
   },
 
   loadWeatherData: function () {

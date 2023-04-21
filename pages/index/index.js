@@ -74,18 +74,23 @@ Page({
      */
     onLoad: function () {
         wx.setStorageSync('isSettings', false)
+        wx.setStorageSync('isDetail', false)
         let defaultCityCode = "__location__";
-        let citySelected = wx.getStorageSync('citySelected');
-        let weatherData = wx.getStorageSync('weatherData');
+        let citySelected = wx.getStorageSync('citySelected') || [];
+        let weatherData = wx.getStorageSync('weatherData') || {};
+        let that = this;
+        if (citySelected.length === 0) {
+            citySelected.unshift("__location__");
+            wx.setStorageSync('citySelected', citySelected);
+        }
         if (citySelected.length === 0 || weatherData.length === 0) {
-            let that = this;
             api.loadWeatherData(defaultCityCode, function (cityCode, data) {
                 let weatherData = {};
                 weatherData[cityCode] = data;
                 that.setHomeData([cityCode], weatherData);
             });
         } else {
-            this.setHomeData(citySelected, weatherData);
+            this.updateWeatherData();
         }
     },
 
@@ -93,8 +98,12 @@ Page({
      * 生命周期函数--监听页面显示
      */
     onShow: function () {
-        let isSettings = wx.getStorageSync("isSettings");
+        let isSettings = wx.getStorageSync("isSettings") || false;
+        let isDetail = wx.getStorageSync("isDetail") || false;
         let removeCount = wx.getStorageSync('removeCount');
+        if (!isSettings && !isDetail) {
+            this.updateWeatherData();
+        }
         if (isSettings) {
             let citySelected = wx.getStorageSync('citySelected');
             let weatherData = wx.getStorageSync('weatherData');
@@ -133,6 +142,25 @@ Page({
                 citySelected: citySelected,
             })
             wx.setStorageSync('isSettings', false)
+            wx.setStorageSync('isDetail', false)
+        }
+    },
+
+    /**
+     * 更新天气数据
+     */
+    updateWeatherData() {
+        let citySelected = wx.getStorageSync('citySelected');
+        let weatherData = wx.getStorageSync('weatherData') || {};
+        let that = this;
+        for (let idx in citySelected) {
+            let cityCode = citySelected[idx];
+            api.loadWeatherData(cityCode, function (cityCode, data) {
+                weatherData = wx.getStorageSync('weatherData') || {};
+                weatherData[cityCode] = data;
+                wx.setStorageSync('weatherData', weatherData);
+                that.setHomeData(citySelected, weatherData);
+            });
         }
     },
 
