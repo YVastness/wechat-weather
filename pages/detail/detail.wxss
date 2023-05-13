@@ -65,8 +65,7 @@
     display: block;
     text-align: center;
     padding-bottom: 5px;
-    margin: 0 100rpx;
-    margin-bottom: 5px;
+    margin: 0 100rpx 5px;
     font-size: 30rpx;
     border-bottom: 1rpx dashed #eee;
 }

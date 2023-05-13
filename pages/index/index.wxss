@@ -91,8 +91,7 @@
     width: 150%;
     height: 300rpx;
     border-radius: 150%;
-    margin: -50rpx 0 0 0;
-    margin-left: -25%;
+    margin: -50rpx 0 0 -25%;
 }
 
 /* ------- feature --------- */
