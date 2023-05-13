@@ -7,12 +7,8 @@ Page({
      * 页面的初始数据
      */
     data: {
-        citySelected: {},
         weatherData: {},
-        multiConf: [],
-        multiSelected: [0, 0, 0],
-        chinaCityConf: [],
-        chinaCitySelected: [0, 0, 0],
+        citySelected: {},
         selectorVisible: false,
         removeCount: 0
     },
@@ -32,15 +28,12 @@ Page({
      */
     onSelectCity(event) {
         let that = this;
-        api.selectCity(event.detail.city.id, function (cityCode) {
-            that.addCity(cityCode);
+        api.convertCityAdCode(event.detail.city.id, function (cityAdCode) {
+            that.addCity(cityAdCode);
         });
 
     },
 
-    /**
-     * 生命周期函数--监听页面加载
-     */
     onLoad: function () {
         this.setData({
             weatherData: wx.getStorageSync('weatherData'),
@@ -50,39 +43,37 @@ Page({
 
     onShow: function () {
         wx.setStorageSync('removeCount', 0);
-        wx.setStorageSync('isSettings', true)
     },
 
     /**
      * 添加城市
-     * @param cityCode 城市代码
+     * @param cityAdCode 城市代码
      */
-    addCity: function (cityCode) {
+    addCity: function (cityAdCode) {
         try {
             let citySelected = wx.getStorageSync('citySelected') || [];
 
-            if (this.data.weatherData['__location__'].realtime.city_code === cityCode) {
+            if (this.data.weatherData['local_adCode'].realtime.city_code === cityAdCode) {
                 return
             }
-            if (citySelected.find(item => item === cityCode) !== undefined) {
+            if (citySelected.find(item => item === cityAdCode) !== undefined) {
                 return
             }
 
             let that = this;
-            api.loadWeatherData(cityCode, function (cityCode, data) {
+            api.getWeatherData(cityAdCode, function (cityAdCode, data) {
                 let weatherData = wx.getStorageSync('weatherData') || {};
-                weatherData[cityCode] = data;
+                weatherData[cityAdCode] = data;
                 wx.setStorageSync('weatherData', weatherData);
-                citySelected.push(cityCode);
+                citySelected.push(cityAdCode);
                 wx.setStorageSync('citySelected', citySelected);
                 that.setData({
-                    chinaCitySelected: cityCode,
                     citySelected: citySelected,
                     weatherData: weatherData
                 })
             });
         } catch (e) {
-            console.log(e)
+            console.log('addCity错误:', e)
         }
     },
 
@@ -93,14 +84,14 @@ Page({
     removeCity: function (event) {
         let removeCount = wx.getStorageSync('removeCount');
         try {
-            let cityCode = event.currentTarget.dataset.city_code || '';
-            if (cityCode === "") {
+            let cityAdCode = event.currentTarget.dataset.city_code || '';
+            if (cityAdCode === "") {
                 return
             }
             let citySelected = wx.getStorageSync('citySelected');
             for (let key in citySelected) {
-                if (citySelected[key] === cityCode) {
-                    if (citySelected[key] === "__location__") {
+                if (citySelected[key] === cityAdCode) {
+                    if (citySelected[key] === "local_adCode") {
                         wx.showToast({title: '本地城市不能删除！', icon: 'none', duration: 2000});
                         break;
                     }
@@ -115,7 +106,7 @@ Page({
                 citySelected: citySelected,
             });
         } catch (e) {
-            console.log(e.message);
+            console.log('removeCity错误:', e.message);
         }
     },
 })

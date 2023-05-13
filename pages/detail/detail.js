@@ -9,10 +9,10 @@ Page({
         weatherInfo: {}
     },
 
-
-    onShow: function () {
+    onShow() {
         wx.setStorageSync('isDetail', true)
     },
+
     /**
      * 生命周期函数--监听页面加载
      */
@@ -33,9 +33,7 @@ Page({
         }
 
         let topCity = {
-            left: "",
             center: "",
-            right: "",
         };
         try {
             topCity.center = weatherInfo.realtime.city_name;

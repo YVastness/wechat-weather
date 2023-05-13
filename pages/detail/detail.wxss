@@ -38,7 +38,7 @@
     padding-left: 0rpx;
 }
 
-.today .weather .pic {
+.today .weather .icon {
     margin: 0 10rpx;
 }
 
@@ -85,7 +85,7 @@
     width: 310rpx;
 }
 
-.life .item .pic {
+.life .item .icon {
     width: 48rpx;
     height: 48rpx;
     margin: 0 20rpx;

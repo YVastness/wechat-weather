@@ -1,41 +1,67 @@
-const apiLocalWeatherUrl = 'https://open.onebox.so.com/Dataapi?&query=%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=weather';
-const apiCityWeatherUrl = 'https://open.onebox.so.com/Dataapi?callback=&query=%E5%8C%97%E4%BA%AC%E5%B8%82%E5%8C%97%E4%BA%AC%E6%B5%B7%E6%B7%80%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=http%253A%252F%252Fcdn.weather.hao.360.cn%252Fsed_api_weather_info.php%253Fapp%253DguideEngine%2526fmt%253Djson%2526code%253D';
-const cdnWeatherHaoUrl = 'http://cdn.weather.hao.360.cn/sed_api_area_query.php?app=guideEngine&fmt=json&grade=';
-const qweather = 'https://geoapi.qweather.com/v2/city/lookup?key=8cbf558f85dd40ff86f528b2370236b8&location=';
-let cityConfCache = {};
-let lifeNameConf = {
-    chuanyi: "穿衣",
-    ganmao: "感冒",
+// 获取本地城市天气数据的 api
+const LocalWeatherApi = 'https://open.onebox.so.com/Dataapi?&query=%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=weather';
+// 通过城市 adCode 作为参数获取城市天气数据的 api
+const CityWeatherApi = 'https://open.onebox.so.com/Dataapi?callback=&query=%E5%8C%97%E4%BA%AC%E5%B8%82%E5%8C%97%E4%BA%AC%E6%B5%B7%E6%B7%80%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=http%253A%252F%252Fcdn.weather.hao.360.cn%252Fsed_api_weather_info.php%253Fapp%253DguideEngine%2526fmt%253Djson%2526code%253D';
+// 将从腾讯地图城市选择器获取的6位数的 adCode 转换获取10位数的 adCode
+const qweatherCityApi = 'https://geoapi.qweather.com/v2/city/lookup?key=8cbf558f85dd40ff86f528b2370236b8&location=';
+let lifeIndexNames = {
+    diaoyu: "钓鱼",
     xiche: "行车",
     yundong: "运动",
-    ziwaixian: "紫外线",
-    diaoyu: "钓鱼",
     daisan: "带伞",
+    ganmao: "感冒",
+    ziwaixian: "紫外线",
     guomin: "过敏",
+    chuanyi: "穿衣",
 };
 
 /**
  * 加载获取天气数据
  *
- * @param cityCode 城市代码
+ * @param cityAdCode 城市代码
  * @param callback 回调函数
  */
-function loadWeatherData(cityCode, callback) {
-    let apiWeatherUrl = apiLocalWeatherUrl;
-    if (cityCode !== "" && cityCode !== "__location__") {
-        apiWeatherUrl = apiCityWeatherUrl + cityCode;
+function getWeatherData(cityAdCode, callback) {
+    let WeatherApi = LocalWeatherApi;
+    // 如果不是本地城市的adCode就使用获取其他城市的api
+    if (cityAdCode !== "" && cityAdCode !== "local_adCode") {
+        WeatherApi = CityWeatherApi + cityAdCode;
     }
     wx.request({
-        url: apiWeatherUrl,
+        url: WeatherApi,
         data: {},
         success: res => {
-            if (res.statusCode !== 200 || res.data.length === 0) {
+            if (res.data.length === 0 || res.statusCode !== 200) {
                 return;
             }
             let weatherData = parseWeatherData(res.data);
-            typeof callback == "function" && callback(cityCode, weatherData)
+            // 回调函数实现同步调用
+            typeof callback == "function" && callback(cityAdCode, weatherData)
         }
     })
+}
+
+/**
+ * 获取生活指数信息
+ * @param data 天气数据
+ */
+function getLifeIndexInfo(data) {
+    let lifeIndexInfo = [];
+    for (let lifeIndexKey in data.life.info) {
+        let name = lifeIndexNames[lifeIndexKey];
+        if (name !== undefined) {
+            lifeIndexInfo.push({
+                key: lifeIndexKey,
+                name: name,
+                icon: 'https://p0.ssl.qhimg.com/d/f239f0e2/' + lifeIndexKey + '.png'
+            });
+        }
+    }
+    /*
+        获取生活指数conf.key，name，icon
+        key: 来获取life.info里生活指数信息
+     */
+    data.life['lifeIndexInfo'] = lifeIndexInfo;
 }
 
 /**
@@ -45,28 +71,13 @@ function loadWeatherData(cityCode, callback) {
  * @returns {*} 解析的展示的数据
  */
 function parseWeatherData(data) {
-    data.realtime.weather.pic = weatherPic(data.realtime.weather.img);
+    data.realtime.weather.icon = getWeatherIcon(data.realtime.weather.img);
     for (let i = 0; i < data.weather.length; i++) {
-        data.weather[i].shortDate = shortDate(data.weather[i].date);
-        data.weather[i].day_pic = weatherPic(data.weather[i].info.day[0]);
-        data.weather[i].night_pic = weatherPic(data.weather[i].info.night[0]);
+        data.weather[i].shortDate = getShortDate(data.weather[i].date);
+        data.weather[i].day_icon = getWeatherIcon(data.weather[i].info.day[0]);
+        data.weather[i].night_icon = getWeatherIcon(data.weather[i].info.night[0]);
     }
-    let lifeConf = [];
-    for (let key in data.life.info) {
-        let name = lifeName(key);
-        if (name !== undefined) {
-            lifeConf.push({
-                key: key,
-                name: name,
-                pic: lifePic(key)
-            });
-        }
-    }
-    /*
-        获取生活指数conf.key，name，pic
-        key: 来获取life.info里生活指数信息
-     */
-    data.life['conf'] = lifeConf;
+    getLifeIndexInfo(data);
     return data;
 }
 
@@ -76,7 +87,7 @@ function parseWeatherData(data) {
  * @param pictureNo 照片的代码
  * @returns {string} 照片的api地址
  */
-function weatherPic(pictureNo) {
+function getWeatherIcon(pictureNo) {
     if (pictureNo === '7' || pictureNo === '07' || pictureNo === '09' || pictureNo === '9' || pictureNo === '21') {
         pictureNo = '08';
     }
@@ -88,71 +99,30 @@ function weatherPic(pictureNo) {
 }
 
 /**
- * 获取生活指数照片
- *
- * @param key 特定的生活指数的key（例如：带伞），用来获取值（是否带伞，照片等）
- * @returns {string} 生活指数照片地址
- */
-function lifePic(key) {
-    return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + key + '.png';
-}
-
-/**
- * 根据生活指数key自定义的生活指数名
- * @param key 生活指数key
- * @returns {*} 自定义的生活指数名
- */
-function lifeName(key) {
-    return lifeNameConf[key];
-}
-
-/**
  * 转换日期格式
  *
  * @param oldDate 需要被转换的日期
  * @returns {string} 新日期
  */
-function shortDate(oldDate) {
+function getShortDate(oldDate) {
     let date = new Date(Date.parse(oldDate));
     let now = new Date();
     let newDate = (date.getMonth() + 1) + "/" + date.getDate();
+    // 如果oldDate的日期是今天的日期就转换为中文"今天"
     if (now.getDate() === date.getDate()) {
         newDate = "今天";
     }
     return newDate;
 }
 
-function loadCityConf(level, code, cb) {
-    let cacheKey = level + ":" + code;
-    if (cityConfCache[cacheKey] !== undefined && cityConfCache[cacheKey].length > 0) {
-        typeof cb == "function" && cb(level, code, cityConfCache[cacheKey])
-        return
-    }
+/**
+ * 将从腾讯地图城市选择器获取的6位数的 adCode 转换获取10位数的 adCode
+ * @param city_id
+ * @param callback
+ */
+function convertCityAdCode(city_id, callback) {
     wx.request({
-        url: apiCityConfUrl(level, code),
-        data: {},
-        success: function (res) {
-            if (res.statusCode !== 200 || res.data.length === 0) {
-                return;
-            }
-            cityConfCache[cacheKey] = res.data;
-            typeof cb == "function" && cb(level, code, res.data)
-            loadCityConf(level, code, cb)
-        }
-    })
-}
-
-function apiCityConfUrl(level, code) {
-    var url = cdnWeatherHaoUrl + level
-    if (code !== "") {
-        url += '&code=' + code
-    }
-    return url
-}
-
-function selectCity(city_id, callback) {
-    wx.request({
-        url: qweather + city_id,
+        url: qweatherCityApi + city_id,
         data: {},
         success: function (res) {
             if (res.statusCode !== 200 || res.data.length === 0) {
@@ -164,7 +134,6 @@ function selectCity(city_id, callback) {
 }
 
 module.exports = {
-    loadWeatherData: loadWeatherData,
-    loadCityConf: loadCityConf,
-    selectCity: selectCity
+    getWeatherData: getWeatherData,
+    convertCityAdCode: convertCityAdCode
 }

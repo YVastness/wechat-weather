@@ -50,35 +50,35 @@
     padding-left: 30rpx;
 }
 
-.today .weather .pic {
-    width: 100rpx;
+.today .weather .icon {
     height: 100rpx;
+    width: 100rpx;
     margin-right: 40rpx;
 }
 
 .today .weather .desc {
-    display: flex;
     flex-direction: column;
+    display: flex;
     margin-right: 20rpx;
 }
 
 .today .weather .desc text {
-    color: #fff;
     font-size: 26rpx;
-    line-height: 40rpx;
+    color: #fff;
     margin-top: 10rpx;
+    line-height: 40rpx;
 }
 
 .today .temperature {
-    color: #faf9fa;
     font-size: 70rpx;
-    margin: 30rpx 0;
+    color: #faf9fa;
     padding-left: 40rpx;
+    margin: 30rpx 0;
 }
 
 .today .more {
-    color: #faf9fa;
     font-size: 25rpx;
+    color: #faf9fa;
     margin-bottom: 20rpx;
 }
 
@@ -119,7 +119,7 @@
     padding-top: 5rpx;
 }
 
-.feature .day .pic {
+.feature .day .icon {
     width: 60rpx;
     height: 60rpx;
     margin-right: 20rpx;
