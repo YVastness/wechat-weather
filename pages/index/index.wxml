@@ -24,7 +24,8 @@
                             <image class="icon" src="{{ weatherData[cityAdCode].realtime.weather.icon }}"></image>
                             <view class="desc">
                                 <text>{{weatherData[cityAdCode].realtime.weather.info}}</text>
-                                <text>{{weatherData[cityAdCode].realtime.wind.direct}} {{weatherData[cityAdCode].realtime.wind.power}}</text>
+                                <text>{{weatherData[cityAdCode].realtime.wind.direct}}
+                                    {{weatherData[cityAdCode].realtime.wind.power}}</text>
                             </view>
                         </view>
                         <view class="temperature">

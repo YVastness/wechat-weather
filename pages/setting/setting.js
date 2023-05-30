@@ -82,31 +82,41 @@ Page({
      * @param event 点击删除按钮后传的值
      */
     removeCity: function (event) {
+        // 从本地存储获取删除计数
         let removeCount = wx.getStorageSync('removeCount');
         try {
+            // 获取要删除的城市行政代码
             let cityAdCode = event.currentTarget.dataset.city_code || '';
+
             if (cityAdCode === "") {
-                return
+                return;
             }
+            // 从本地存储获取已选择的城市列表
             let citySelected = wx.getStorageSync('citySelected');
+            // 遍历城市列表，查找要删除的城市
             for (let key in citySelected) {
                 if (citySelected[key] === cityAdCode) {
                     if (citySelected[key] === "local_adCode") {
+                        // 如果要删除的城市是当前位置的城市行政代码，则显示提示信息并停止删除操作
                         wx.showToast({title: '本地城市不能删除！', icon: 'none', duration: 2000});
                         break;
                     }
+                    // 从城市列表中移除要删除的城市行政代码
                     citySelected.splice(key, 1);
+                    // 增加删除计数
                     removeCount++;
                     break;
                 }
             }
+            // 更新本地存储中的城市列表和删除计数
             wx.setStorageSync('citySelected', citySelected);
-            wx.setStorageSync('removeCount', removeCount)
+            wx.setStorageSync('removeCount', removeCount);
+            // 更新组件的城市列表属性，以在界面上反映出删除后的结果
             this.setData({
                 citySelected: citySelected,
             });
         } catch (e) {
             console.log('removeCity错误:', e.message);
         }
-    },
+    }
 })
